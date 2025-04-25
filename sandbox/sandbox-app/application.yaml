@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sandbox-app
+  namespace: argocd
+  labels:
+    env_name: staging
+    env_tag: a
+    app_name: diff-preview
+spec:
+  destination:
+    namespace: staging-a
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: .
+    plugin:
+      name: kustomize-build-with-ecr-helm
+    repoURL: https://github.com/ajax-kovtunov-o/argo-diff-test
+    targetRevision: master
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        svc-workloads: "true"
+        elbv2.k8s.aws/pod-readiness-gate-inject: enabled
